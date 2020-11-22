@@ -11,14 +11,14 @@ import Crypto
 import NIO
 import NIOSSH
 
-protocol SSHPasswordDelegate {
+public protocol SSHPasswordDelegate {
     func authenticate( username:String, password:String, completion: ((Bool)->Void) )
 }
-protocol SSHPublicKeyDelegate {
+public protocol SSHPublicKeyDelegate {
     func authenticate( username:String, publicKey:SSHConsole.PublicKey, completion: ((Bool)->Void) )
 }
 
-class SSHConsole {
+public class SSHConsole {
     public enum ProtocolError : Error {
         case invalidChannelType
         case invalidDataType

@@ -11,11 +11,11 @@ import NIO
 import NIOSSH
 
 extension SSHConsole {
-    class CommandHandler: ChannelDuplexHandler {
-        internal typealias InboundIn = SSHChannelData
-        internal typealias InboundOut = ByteBuffer
-        internal typealias OutboundIn = ByteBuffer
-        internal typealias OutboundOut = SSHChannelData
+    public class CommandHandler: ChannelDuplexHandler {
+        public typealias InboundIn = SSHChannelData
+        public typealias InboundOut = ByteBuffer
+        public typealias OutboundIn = ByteBuffer
+        public typealias OutboundOut = SSHChannelData
         
         private let queue = DispatchQueue(label: "ssh sync")
         private var environment: [String: String] = [:]
@@ -47,7 +47,7 @@ extension SSHConsole {
         //
         // Always turn on our .allowRemoteHalfClosure because SSH needs it.
         //
-        internal func handlerAdded(context: ChannelHandlerContext) {
+        public func handlerAdded(context: ChannelHandlerContext) {
             self.context = context        // save it for writing later
             context.channel.setOption(ChannelOptions.allowRemoteHalfClosure, value: true).whenFailure { error in
                 context.fireErrorCaught(error)
@@ -58,7 +58,7 @@ extension SSHConsole {
             to.write("\(Self.Type.self) has no doCommand to do: \(command)")
         }
         
-        internal func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
+        public func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
             switch event {
             case let event as SSHChannelRequestEvent.ExecRequest:
                 doCommand( command:event.command, to:outputStream, environment:environment)
@@ -73,7 +73,7 @@ extension SSHConsole {
             }
         }
         
-        internal func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
             let data = self.unwrapInboundIn(data)
             
             /*
@@ -95,12 +95,12 @@ extension SSHConsole {
             //context.fireChannelRead(self.wrapInboundOut(bytes))
         }
         
-        internal func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+        public func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
             let data = self.unwrapOutboundIn(data)
             context.writeAndFlush(self.wrapOutboundOut(SSHChannelData(type: .channel, data: .byteBuffer(data))), promise: promise)
         }
         
-        internal func writeError(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
+        public func writeError(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
             let data = self.unwrapOutboundIn(data)
             
             context.writeAndFlush(self.wrapOutboundOut( SSHChannelData(type: .stdErr, data: .byteBuffer(data))), promise: promise)
