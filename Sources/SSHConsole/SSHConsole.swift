@@ -27,7 +27,7 @@ public protocol SSHPasswordDelegate {
     ///   - password: The password
     ///   - completion: A completion routine to report the validity. Must be called exactly once.
     ///
-    func authenticate( username:String, password:String, completion: ((Bool)->Void) )
+    func authenticate( username:String, password:String, completion: @escaping ((Bool)->Void) )
 }
 
 /// Implement a security policy for public key authentication
@@ -47,7 +47,7 @@ public protocol SSHPublicKeyDelegate {
     ///   - publicKey: The binary public key, see methods for accessing.
     ///   - completion: A completion routine to report the validity. Must be called exactly once.
     ///
-    func authenticate( username:String, publicKey:SSHConsole.PublicKey, completion: ((Bool)->Void) )
+    func authenticate( username:String, publicKey:SSHConsole.PublicKey, completion: @escaping ((Bool)->Void) )
 }
 
 /// SSHConsole provides a listener on a host's port for the SSH protocol and dispatches

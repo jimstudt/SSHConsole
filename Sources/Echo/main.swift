@@ -27,16 +27,18 @@ struct Authenticator : SSHPublicKeyDelegate {
     //
     // Not all formats are supported, like RSA apparently. ssh-ed25519 is.
     //
-    func authenticate( username:String, publicKey:SSHConsole.PublicKey, completion:((Bool)->Void)) {
-        let homeDirURL = FileManager.default.homeDirectoryForCurrentUser
-        let authorizedKeysURL = URL(fileURLWithPath: ".ssh/authorized_keys", relativeTo: homeDirURL)
-        
-        if let file = try? String(contentsOfFile: authorizedKeysURL.path) {
-            //
-            // The actual work: We are passing the entire file to publicKey.isIn(file:)
-            completion( publicKey.isIn(file:file))
+    func authenticate( username:String, publicKey:SSHConsole.PublicKey, completion: @escaping ((Bool)->Void)) {
+        DispatchQueue.global().async {
+            let homeDirURL = FileManager.default.homeDirectoryForCurrentUser
+            let authorizedKeysURL = URL(fileURLWithPath: ".ssh/authorized_keys", relativeTo: homeDirURL)
+            
+            if let file = try? String(contentsOfFile: authorizedKeysURL.path) {
+                //
+                // The actual work: We are passing the entire file to publicKey.isIn(file:)
+                completion( publicKey.isIn(file:file))
+            }
+            return completion(false)
         }
-        return completion(false)
     }
 }
 
@@ -58,8 +60,11 @@ struct Authenticator : SSHPublicKeyDelegate {
 /// - Note: You probably want to push this off onto a work queue somewhere if it does file I/O like this one.
 ///
 struct TrivialPassword : SSHPasswordDelegate {
-    func authenticate(username: String, password: String, completion: ((Bool) -> Void)) {
-        completion( username == "password" && password == "admin")
+    func authenticate(username: String, password: String, completion: @escaping ((Bool) -> Void)) {
+        
+        DispatchQueue.global().async {
+            completion( username == "password" && password == "admin")
+        }
     }
 }
 

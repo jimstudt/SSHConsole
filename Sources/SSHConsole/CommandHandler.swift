@@ -176,8 +176,6 @@ extension SSHConsole.CommandHandler {
         }
         deinit {
             handler.close(promise: nil)
-
-            print("SSHTextOutputStream closes: \(ObjectIdentifier(self)) - \(handler)")
         }
         /// Send data back to the client
         ///
