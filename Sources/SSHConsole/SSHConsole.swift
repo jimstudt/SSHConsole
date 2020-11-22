@@ -1,8 +1,9 @@
 //
-//  File.swift
-//  
+//  SSHConsole.swift
 //
 //  Created by Jim Studt on 11/20/20.
+//
+//  SPDX-License-Identifier: MIT
 //
 
 import Foundation

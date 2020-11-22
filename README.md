@@ -20,21 +20,40 @@ each time you restart your server.
 
 Plus 10 more to have some sort of responsible authentication.
 
-Plus however you do your commands. I use [Swift Argument Parser]("https://github.com/apple/swift-argument-parser") to define 
+Plus however you do your commands. I use [Swift Argument Parser](https://github.com/apple/swift-argument-parser) to define 
 my commands, which is great, but not quite intended to be used this way and there is a page of extensions required 
 to work around it's limitations. But strictly speaking, that's not part of this project and you can do whatever you 
 want with your commands. I'll put it in an example server for you to copy if you want.
 
 ## Show Me.
 
+```swift
+import SSHConsole
+
+/// get your program doing it's stuff
+
+let console = SSHConsole( port:2525, hostKeys:hostKeys, passwordDelegate: TrivialPassword() , publicKeyDelegate: Authenticator() )
+try console.listen( handlerType:DoCommand.self )
+
+/// wait around in your program until you are ready to exit
+
+try console.stop()   // Or don't, but this flushes and closes the open sockets
+```
+
+Ok, I've lied there. You will notice that `TrivialPassword()` seems like a really bad idea, `Authenticator()`
+is not defined, and I left `DoCommand` as an exercise to the reader. But go look in the example Echo server. The
+whole think *with* all the missing bits as ~130 lines and thats mostly comments for you.
+
+Here is the [complete source for the Echo server](https://github.com/jimstudt/SSHConfig/Echo/main.swift)
+
 > I'll put a sample server here, when I write one.
 
 ## How Much Does This Drag In?
 
-- [SwiftNIO SSH]("https://github.com/apple/swift-nio-ssh")
+- [SwiftNIO SSH](https://github.com/apple/swift-nio-ssh)
 
-- SwiftNIO SSH will then drag in [SwiftNIO]("https://github.com/apple/swift-nio/"), and 
-  [Swift Crypto]("https://github.com/apple/swift-crypto") but you 
+- SwiftNIO SSH will then drag in [SwiftNIO](https://github.com/apple/swift-nio/), and 
+  [Swift Crypto](https://github.com/apple/swift-crypto) but you 
   probably already have them if you are writing a server.
 
 ## It Looks Small, What Kind of Limitiations Does It Have?
