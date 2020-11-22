@@ -64,7 +64,7 @@ public class SSHConsole {
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(IPPROTO_TCP), TCP_NODELAY), value: 1)
         
-        channel = try bootstrap.bind(host: "0.0.0.0", port: 2222).wait()
+        channel = try bootstrap.bind(host: host, port: port).wait()
     }
     
     public func stop() throws {
