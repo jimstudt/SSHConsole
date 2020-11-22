@@ -151,7 +151,7 @@ extension SSHConsole {
         
         private let _key : Curve25519.Signing.PrivateKey
         
-        internal init() {
+        public init() {
             _key = Curve25519.Signing.PrivateKey()
         }
         
