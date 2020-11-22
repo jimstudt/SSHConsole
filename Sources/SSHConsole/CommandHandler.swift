@@ -12,6 +12,12 @@ import NIO
 import NIOSSH
 
 extension SSHConsole {
+    
+    /// The command handler for an SSHConsole connection.
+    ///
+    /// You will subclass this and override the `doCommand` method.
+    /// Later I will probably break this API, but it won't take long for you to adapt.
+    ///
     open class CommandHandler: ChannelDuplexHandler {
         public typealias InboundIn = SSHChannelData
         public typealias InboundOut = ByteBuffer
@@ -55,6 +61,24 @@ extension SSHConsole {
             }
         }
         
+        /// Act upon an SSH command, possibly sending output and errors back to the client.
+        ///
+        /// Respond to the `command`. Output can be sent back with `to.write(_)` and `to.writeError(_)`.
+        /// This may be buffered until you finish and release all references to `to`, which naturally happens unless
+        /// you do something exceptionally "clever".
+        ///
+        /// You will implement this in your subclass of CommandHandler.
+        ///
+        /// No input can be transmitted from the SSH client. Only the command.
+        ///
+        /// - Attention: Get off of this thread. Use Dispatch or EventLoop to run somewhere else if
+        /// your command takes *any* time.
+        ///
+        /// - Parameters:
+        ///   - command: The command from SSH
+        ///   - to: an Output object to send data back to the client
+        ///   - environment: A dictionary of the environment variables sent by the client
+        ///
         open func doCommand( command:String, to:Output, environment:[String:String]) {
             to.write("\(Self.Type.self) has no doCommand to do: \(command)")
         }
@@ -142,7 +166,8 @@ extension SSHConsole.CommandHandler {
             c.close(promise: promise)  // does this need to wait for the flush and write?
         }
     }
-
+    
+    /// An output stream for sending data back to the SSH client.
     public class Output : TextOutputStream {
         private let handler : SSHConsole.CommandHandler
         
@@ -154,9 +179,26 @@ extension SSHConsole.CommandHandler {
 
             print("SSHTextOutputStream closes: \(ObjectIdentifier(self)) - \(handler)")
         }
+        /// Send data back to the client
+        ///
+        /// You will probably want to end lines with "\r\n" to make terminal clients do the right thing.
+        ///
+        /// This output may be buffered arbitrarily long until you finish your command and release
+        /// the Output object.
+        ///
+        /// - Parameter string: Text to send
         public func write(_ string: String) {
             handler.write(text:string, promise: nil)
         }
+        
+        /// Send data back to the client on its standard error stream
+        ///
+        /// You will probably want to end lines with "\r\n" to make terminal clients do the right thing.
+        ///
+        /// This output may be buffered arbitrarily long until you finish your command and release
+        /// the Output object.
+        ///
+        /// - Parameter string: Text to send
         public func writeError(_ string: String) {
             handler.writeError(text:string, promise: nil)
         }
