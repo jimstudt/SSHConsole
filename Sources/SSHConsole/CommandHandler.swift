@@ -23,7 +23,7 @@ extension SSHConsole {
         private var madeStream : Bool = false
         private weak var _outputStream : Output? = nil
         
-        required init() {}
+        public required init() {}
         
         //
         // This is a bit odd. You can take a bunch of these, when the last one
