@@ -91,7 +91,7 @@ maybe I should give it to you. (I also vanish for months at a time, so responses
 
 - There isn't a mechanism to report *who* the authorized user is to your command handler.
   I don't care, I don't have different classes of users, but I can see where one might. I'll probably 
-  cover this when I redo the API and name it version 0.0.1.
+  cover this when I redo the API and name it version 0.0.2.
   
 - Can I send an exit code back through this to the client?
 
