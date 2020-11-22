@@ -11,7 +11,7 @@ import NIO
 import NIOSSH
 
 extension SSHConsole {
-    public class CommandHandler: ChannelDuplexHandler {
+    open class CommandHandler: ChannelDuplexHandler {
         public typealias InboundIn = SSHChannelData
         public typealias InboundOut = ByteBuffer
         public typealias OutboundIn = ByteBuffer
@@ -54,7 +54,7 @@ extension SSHConsole {
             }
         }
         
-        public func doCommand( command:String, to:Output, environment:[String:String]) {
+        open func doCommand( command:String, to:Output, environment:[String:String]) {
             to.write("\(Self.Type.self) has no doCommand to do: \(command)")
         }
         

@@ -129,12 +129,16 @@ extension SSHConsole {
     public struct PublicKey {
         let key : NIOSSHUserAuthenticationRequest.Request.PublicKey
         
-        func matches( openSSHPublicKey:String) -> Bool {
+        public init(key: NIOSSHUserAuthenticationRequest.Request.PublicKey) {
+            self.key = key
+        }
+        
+        public func matches( openSSHPublicKey:String) -> Bool {
             guard let k = try? NIOSSHPublicKey.init(openSSHPublicKey: openSSHPublicKey) else { return false }
             return k == self.key.publicKey
         }
         
-        func isIn( file:String) -> Bool {
+        public func isIn( file:String) -> Bool {
             return file.split(separator: "\n")
                 .map{ $0.trimmingCharacters(in: .whitespacesAndNewlines)}
                 .contains { self.matches(openSSHPublicKey: $0) }
@@ -143,7 +147,7 @@ extension SSHConsole {
 
     public struct PrivateKey {
         var key : NIOSSHPrivateKey { NIOSSHPrivateKey(ed25519Key: _key) }
-        var string : String { "ed25519 \(_key.rawRepresentation.base64EncodedString())" }
+        public var string : String { "ed25519 \(_key.rawRepresentation.base64EncodedString())" }
         
         private let _key : Curve25519.Signing.PrivateKey
         
