@@ -51,8 +51,23 @@ want with your commands. I'll put it in an example server for you to copy if you
   me to the private keys and I'm hoping they'll open that up and I won't have to write the 20 lines of
   code to expand my shadow private key logic I use to work around the blinding.
 
+## How Stable is the API?
+
+Not at all. In fact, I'll probably stop this subclassing nonesense and make `listen`  take a delegate 
+object or maybe just a function for the "handle a command" function.
+
 ## How Committed Is The Maintainer?
 
 Not at all. This is a two-day rathole I ran down for my own servers. I'll use it and probably spend
-another day polishing it, but if you are a sizeable organization and like it, maybe I should give it 
-to you. (I also vanish for months at a time, so responses are not timely.) – *fork is your friend*
+another day polishing it, but if you are a sizeable organization or active developer and want to use it, 
+maybe I should give it to you. (I also vanish for months at a time, so responses are not timely.) – *fork is your friend*
+
+## What's Next?
+
+- Write the API documentation.
+
+- Test on Linux. I think it works.
+
+- There isn't a mechanism to report *who* the authorized user is to your command handler.
+  I don't care, I don't have different classes of users, but I can see where one might.
+  

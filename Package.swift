@@ -16,6 +16,7 @@ let package = Package(
 
     products: [
         .library( name: "SSHConsole", targets: ["SSHConsole"]),
+        .executable(name: "ssh-echo", targets: ["Echo"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio-ssh.git", from: "0.0.2"),
@@ -25,6 +26,8 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target( name: "SSHConsole",
                  dependencies: [ .product(name: "NIOSSH", package: "swift-nio-ssh")]),
+        .target( name: "Echo",
+                 dependencies: [ "SSHConsole"]),
         .testTarget( name: "SSHConsoleTests", dependencies: ["SSHConsole"]),
     ]
 )
