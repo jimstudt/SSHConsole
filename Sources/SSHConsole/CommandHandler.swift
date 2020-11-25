@@ -24,13 +24,19 @@ extension SSHConsole {
         public typealias OutboundIn = ByteBuffer
         public typealias OutboundOut = SSHChannelData
         
+        public let runner : Runner
+        public let user : String
+        
         private let queue = DispatchQueue(label: "ssh sync")
         private var environment: [String: String] = [:]
         
         private var madeStream : Bool = false
         private weak var _outputStream : Output? = nil
         
-        public required init() {}
+        public required init(runner: @escaping Runner, user:String) {
+            self.runner = runner
+            self.user = user
+        }
         
         //
         // This is a bit odd. You can take a bunch of these, when the last one
@@ -61,32 +67,10 @@ extension SSHConsole {
             }
         }
         
-        /// Act upon an SSH command, possibly sending output and errors back to the client.
-        ///
-        /// Respond to the `command`. Output can be sent back with `to.write(_)` and `to.writeError(_)`.
-        /// This may be buffered until you finish and release all references to `to`, which naturally happens unless
-        /// you do something exceptionally "clever".
-        ///
-        /// You will implement this in your subclass of CommandHandler.
-        ///
-        /// No input can be transmitted from the SSH client. Only the command.
-        ///
-        /// - Attention: Get off of this thread. Use Dispatch or EventLoop to run somewhere else if
-        /// your command takes *any* time.
-        ///
-        /// - Parameters:
-        ///   - command: The command from SSH
-        ///   - to: an Output object to send data back to the client
-        ///   - environment: A dictionary of the environment variables sent by the client
-        ///
-        open func doCommand( command:String, to:Output, environment:[String:String]) {
-            to.write("\(Self.Type.self) has no doCommand to do: \(command)")
-        }
-        
         public func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
             switch event {
             case let event as SSHChannelRequestEvent.ExecRequest:
-                doCommand( command:event.command, to:outputStream, environment:environment)
+                runner( event.command, outputStream, user, environment)
                 
             case let event as SSHChannelRequestEvent.EnvironmentRequest:
                 self.queue.sync {

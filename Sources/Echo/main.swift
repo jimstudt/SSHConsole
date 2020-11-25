@@ -68,43 +68,37 @@ struct TrivialPassword : SSHPasswordDelegate {
     }
 }
 
-///
-/// You will need something which implements `SSHConsole.CommandHandler` to
-/// dispatch your commands. This is the one for the Example. It implements a simple
-/// `echo` server with the twist that if you send `exit ` it will cleanly exit the server.
-///
-/// In practice, I feed these to an augmented Swift Argument Parser, but that is work for
-/// another repository, I don't want to pollute this one.
-///
-class DoCommand : SSHConsole.CommandHandler {
     
-    /// Process a command from an SSH connection. SSHConsole does not accept input, so this is the
-    /// command part of the `ssh` command as one solid string.
-    ///
-    /// - Parameters:
-    ///   - command: The command from the SSH session
-    ///   - to: Use this to send output or error back to the remote SSH client
-    ///   - environment: The environment variables sent by the SSH client
-    ///
-    /// You will want to get off onto your own work queue to do the work. Don't hang up SSHConsole's
-    /// thread. It is left to you since SSHConsole doesn't know what your app uses and maybe you have
-    /// synchronization issues.
-    ///
-    /// - Attention: The SSH output is flushed and the connection closed when the `to` parameter
-    ///              deinitializes. If you hold a reference after your command is done, then your command
-    ///              is *not* done. In practice this takes care of itself unless you are too clever.
-    ///
-    override func doCommand(command: String, to: SSHConsole.CommandHandler.Output, environment: [String : String]) {
+/// Process a command from an SSH connection. SSHConsole does not accept input, so this is the
+/// command part of the `ssh` command as one solid string.
+///
+/// - Parameters:
+///   - command: The command from the SSH session
+///   - to: Use this to send output or error back to the remote SSH client
+///   - user: The username from the authentication  !! SEE NOTE!!!
+///   - environment: The environment variables sent by the SSH client
+///
+/// - Note: For now, I don't think NIOSSH can track the user from authentication to the ChannelHandler.
+///     as such, there is no way to know the `user`, so this is always `"???".
+///     `
+/// You will want to get  onto your own work queue to do the work. Don't hang up SSHConsole's
+/// thread. It is left to you since SSHConsole doesn't know what your app uses and maybe you have
+/// synchronization issues.
+///
+/// - Attention: The SSH output is flushed and the connection closed when the `to` parameter
+///              deinitializes. If you hold a reference after your command is done, then your command
+///              is *not* done. In practice this takes care of itself unless you are too clever.
+///
+func doEcho(command: String, to: SSHConsole.CommandHandler.Output, user:String, environment: [String : String]) {
+    DispatchQueue.global().async {
         let trimmed = command.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        DispatchQueue.global().async {
-            switch trimmed {
-            case "exit":
-                to.write("Goodbye\r\n")
-                terminate.signal()
-            default:
-                to.write("echo: \(trimmed)\r\n")
-            }
+        switch trimmed {
+        case "exit":
+            to.write("Goodbye\r\n")
+            terminate.signal()
+        default:
+            to.write("echo: \(trimmed)\r\n")
         }
     }
 }
@@ -127,7 +121,7 @@ let hostKeys = [ SSHConsole.PrivateKey(string:"ed25519 IWK76Glc2Dh7BeaSJrErVAndP
 /// At last! We create our console on our port with out identity and security policy., then start listening with our command handler.
 ///
 let console = SSHConsole( port:2525, hostKeys:hostKeys, passwordDelegate: TrivialPassword() , publicKeyDelegate: Authenticator() )
-try console.listen( handlerType:DoCommand.self )
+try console.listen( runner: doEcho )
 
 ///
 /// Hang around and let things happen. Eventually someone will send an `exit` command and

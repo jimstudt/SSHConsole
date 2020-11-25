@@ -58,6 +58,9 @@ public class SSHConsole {
         case invalidDataType
     }
 
+    public typealias Runner = (_ command:String, _ to:CommandHandler.Output, _ user:String, _ environment:[String:String])->Void
+    
+
     let host : String
     let port : Int
     let hostKeys : [ NIOSSHPrivateKey ]
@@ -106,11 +109,11 @@ public class SSHConsole {
     /// - Parameter handlerType: Your type for executing commands, e.g. `MyHandler.self`
     /// - Throws: This will throw if it is unable to bind the specified port.
     ///
-    public func listen( handlerType:SSHConsole.CommandHandler.Type ) throws {
+    public func listen( runner: @escaping Runner ) throws {
         func sshChildChannelInitializer(_ channel: Channel, _ channelType: SSHChannelType) -> EventLoopFuture<Void> {
             switch channelType {
             case .session:
-                return channel.pipeline.addHandler( handlerType.init() )
+                return channel.pipeline.addHandler( CommandHandler(runner: runner, user: "???") )
             default:
                 return channel.eventLoop.makeFailedFuture(ProtocolError.invalidChannelType)
             }
