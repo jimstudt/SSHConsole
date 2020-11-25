@@ -35,17 +35,22 @@ import SSHConsole
 let console = SSHConsole( port:2525, 
                           hostKeys:hostKeys, 
                           passwordDelegate: TrivialPassword(), 
-                          publicKeyDelegate: Authenticator() )
-try console.listen( handlerType:DoCommand.self )
+                          publicKeyDelegate: AuthenticatePublicKey() )
+try console.listen( runner: myHandler )
+
+func myHandler( command: String, to: SSHConsole.CommandHandler.Output, user:String, environment: [String : String]) {
+    to.write("Thank you for connecting to my demo service.\r\n")
+    to.write("Good bye now.\r\n")
+}
 
 /// wait around in your program until you are ready to exit
 
 try console.stop()   // Or don't, but this flushes and closes the open sockets
 ```
 
-Ok, I've lied there. You will notice that `TrivialPassword()` seems like a really bad idea, `Authenticator()`
-is not defined, and I left `DoCommand` as an exercise to the reader. But go look in the example Echo server. The
-whole think *with* all the missing bits as ~130 lines and thats mostly comments for you.
+Ok, I've lied there. You will notice that `TrivialPassword()` seems like a really bad idea, `AuthenticatePublicKey()`
+is not defined. But go look in the example Echo server. The
+whole think *with* all the missing bits as ~130 lines and that's mostly comments for you.
 
 Here is the [complete source for the Echo server](https://github.com/jimstudt/SSHConsole/blob/main/Sources/Echo/main.swift)
 
@@ -68,14 +73,15 @@ Here is the [complete source for the Echo server](https://github.com/jimstudt/SS
 
 - It doesn't handle RSA keys. This is a, possibly permanent, limitation of the SwiftNIO SSH project.
 
-- It only does ED25519 server keys. This can be expanded, but I'm annoyed at Swift NIO blinding 
+- It only does ED25519 host keys. This can be expanded, but I'm annoyed at Swift NIO blinding 
   me to the private keys and I'm hoping they'll open that up and I won't have to write the 20 lines of
   code to expand my shadow private key logic I use to work around the blinding.
 
 ## How Stable is the API?
 
-Not at all. In fact, I'll probably stop this subclassing nonesense and make `listen`  take a delegate 
-object or maybe just a function for the "handle a command" function.
+Mostly stable. There is still a problem where I can't find the authenticated user name, so I'm 
+passing "???". That will either get resolved by me finding the name, or removing the ability
+to know which user is running your command.
 
 ## How Committed Is The Maintainer?
 
@@ -85,13 +91,7 @@ maybe I should give it to you. (I also vanish for months at a time, so responses
 
 ## What's Next?
 
-- Write the API documentation.
-
-- Test on Linux. I think it works.
-
-- There isn't a mechanism to report *who* the authorized user is to your command handler.
-  I don't care, I don't have different classes of users, but I can see where one might. I'll probably 
-  cover this when I redo the API and name it version 0.0.2.
+- Still working on retrieving the authenticated user, sending "???" for now.
   
 - Can I send an exit code back through this to the client?
 

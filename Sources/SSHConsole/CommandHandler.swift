@@ -15,10 +15,7 @@ extension SSHConsole {
     
     /// The command handler for an SSHConsole connection.
     ///
-    /// You will subclass this and override the `doCommand` method.
-    /// Later I will probably break this API, but it won't take long for you to adapt.
-    ///
-    open class CommandHandler: ChannelDuplexHandler {
+    public class CommandHandler: ChannelDuplexHandler {
         public typealias InboundIn = SSHChannelData
         public typealias InboundOut = ByteBuffer
         public typealias OutboundIn = ByteBuffer
