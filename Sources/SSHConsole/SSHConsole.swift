@@ -58,7 +58,7 @@ public class SSHConsole {
         case invalidDataType
     }
 
-    public typealias Runner = (_ command:String, _ to:CommandHandler.Output, _ user:String, _ environment:[String:String])->Void
+    public typealias Runner = (_ command:String, _ to:CommandHandler.Output, _ username:String?, _ environment:[String:String])->Void
     
 
     let host : String

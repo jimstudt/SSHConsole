@@ -67,7 +67,15 @@ extension SSHConsole {
         public func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
             switch event {
             case let event as SSHChannelRequestEvent.ExecRequest:
-                runner( event.command, outputStream, user, environment)
+                // Change to a whenSuccess when UsernameOption() support is integrated in NIOSSH main release
+                context.channel.getOption( SSHChildChannelOptions.Types.UsernameOption()).whenComplete{ result in
+                    switch result {
+                    case .failure(_):
+                        self.runner( event.command, self.outputStream, nil, self.environment)
+                    case .success(let username):
+                        self.runner( event.command, self.outputStream, username, self.environment)
+                    }
+                }
                 
             case let event as SSHChannelRequestEvent.EnvironmentRequest:
                 self.queue.sync {

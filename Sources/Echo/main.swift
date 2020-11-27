@@ -75,7 +75,7 @@ struct TrivialPassword : SSHPasswordDelegate {
 /// - Parameters:
 ///   - command: The command from the SSH session
 ///   - to: Use this to send output or error back to the remote SSH client
-///   - user: The username from the authentication  !! SEE NOTE!!!
+///   - username: The username from the authentication, nil means no username
 ///   - environment: The environment variables sent by the SSH client
 ///
 /// - Note: For now, I don't think NIOSSH can track the user from authentication to the ChannelHandler.
@@ -89,7 +89,7 @@ struct TrivialPassword : SSHPasswordDelegate {
 ///              deinitializes. If you hold a reference after your command is done, then your command
 ///              is *not* done. In practice this takes care of itself unless you are too clever.
 ///
-func doEcho(command: String, to: SSHConsole.CommandHandler.Output, user:String, environment: [String : String]) {
+func doEcho(command: String, to: SSHConsole.CommandHandler.Output, username:String?, environment: [String : String]) {
     DispatchQueue.global().async {
         let trimmed = command.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -97,6 +97,12 @@ func doEcho(command: String, to: SSHConsole.CommandHandler.Output, user:String, 
         case "exit":
             to.write("Goodbye\r\n")
             terminate.signal()
+        case "user":
+            if let u = username {
+                to.write("authenticated username is `\(u)`\r\n")
+            } else {
+                to.write("unauthenticated\r\n")
+            }
         default:
             to.write("echo: \(trimmed)\r\n")
         }
