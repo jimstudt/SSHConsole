@@ -129,6 +129,16 @@ let hostKeys = [ SSHConsole.PrivateKey(string:"ed25519 IWK76Glc2Dh7BeaSJrErVAndP
 let console = SSHConsole( port:2525, hostKeys:hostKeys, passwordDelegate: TrivialPassword() , publicKeyDelegate: Authenticator() )
 try console.listen( runner: doEcho )
 
+print("")
+print("Listening to localhost, port 2525 for ssh commands.")
+print("Try: ssh -p 2525 password@localhost something to echo")
+print("The `password` account's password is `admin`")
+print("If you have a ~/ssh/authorized_keys file, then...")
+print("Try: ssh -p 2525 localhost something to echo")
+print("Add -o PubkeyAuthentication=false to prevent public key authentication and force password")
+print("Special commands are:")
+print("  'exit' to exit")
+print("  'user' to show the authorized user")
 ///
 /// Hang around and let things happen. Eventually someone will send an `exit` command and
 /// this will return.
